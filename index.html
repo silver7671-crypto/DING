@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0A0E12">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>띵</title>
+<style>
+  :root{
+    --bg:#0A0E12; --panel:#131A21; --line:#22303B;
+    --ink:#E8EEF3; --mute:#7A8B99;
+    --warn:#FFB020; --ok:#3FD69A; --hot:#FF5A4E;
+    --r:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    overscroll-behavior:none;user-select:none}
+  body{display:flex;flex-direction:column;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
+
+  header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .dot{width:8px;height:8px;border-radius:50%;background:#3A4A57;transition:background .3s}
+  .dot.live{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+  h1{font-size:15px;margin:0;letter-spacing:.24em;font-weight:600}
+  .count{margin-left:auto;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+
+  /* 신호판 */
+  .stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--r);position:relative;overflow:hidden}
+  .ring{position:absolute;width:78vw;max-width:340px;aspect-ratio:1;border-radius:50%;
+    border:1px solid #1D2A34;transition:box-shadow .4s,border-color .4s}
+  .stage.near .ring{border-color:var(--warn);box-shadow:0 0 0 1px #2A2013 inset,0 0 60px rgba(255,176,32,.18)}
+  .stage.zone .ring{border-color:var(--hot);box-shadow:0 0 60px rgba(255,90,78,.2)}
+  .big{font-size:clamp(56px,22vw,110px);font-weight:700;line-height:.9;font-variant-numeric:tabular-nums;z-index:1}
+  .unit{font-size:14px;color:var(--mute);letter-spacing:.3em;margin-top:14px;z-index:1}
+  .sub{margin-top:18px;font-size:13px;color:var(--mute);text-align:center;padding:0 20px;z-index:1;min-height:36px}
+  .tag{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;letter-spacing:.1em;
+    border:1px solid var(--line);color:var(--mute)}
+  .tag.w{border-color:var(--warn);color:var(--warn)}
+  .tag.h{border-color:var(--hot);color:var(--hot)}
+
+  /* 하단 */
+  .row{display:flex;gap:8px;margin-top:10px}
+  button{flex:1;padding:15px;border-radius:var(--r);border:1px solid var(--line);
+    background:var(--panel);color:var(--ink);font-size:15px;font-weight:600;font-family:inherit}
+  button.go{background:var(--ok);border-color:var(--ok);color:#062117}
+  button.stop{background:transparent;border-color:var(--hot);color:var(--hot)}
+  button:disabled{opacity:.35}
+
+  /* 설정 시트 */
+  .sheet{position:fixed;inset:0;background:rgba(6,9,12,.92);backdrop-filter:blur(6px);
+    display:none;flex-direction:column;justify-content:center;padding:20px;z-index:9}
+  .sheet.on{display:flex}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+  .card h2{margin:0 0 4px;font-size:16px}
+  .card p{margin:0 0 14px;font-size:13px;color:var(--mute);line-height:1.6}
+  label{display:block;font-size:12px;color:var(--mute);margin:12px 0 6px}
+  input[type=file],select,input[type=number]{width:100%;padding:12px;border-radius:10px;
+    border:1px solid var(--line);background:#0D141A;color:var(--ink);font-size:14px;font-family:inherit}
+  a{color:var(--ok)}
+  .msg{font-size:12px;margin-top:12px;color:var(--warn);min-height:16px;line-height:1.5}
+  .ghost{background:none;border:none;color:var(--mute);font-size:12px;padding:8px}
+
+  /* 블랙아웃 — 화면은 켜져 있되 꺼진 것처럼 */
+  .black{position:fixed;inset:0;background:#000;z-index:20;display:none;
+    align-items:center;justify-content:center;flex-direction:column;gap:20px}
+  .black.on{display:flex}
+  .pulse{width:5px;height:5px;border-radius:50%;background:#123;animation:bp 3s ease-in-out infinite}
+  @keyframes bp{0%,100%{opacity:.25}50%{opacity:.7}}
+  .black .hint{color:#0F1B22;font-size:11px;letter-spacing:.2em}
+  .black.alert{background:#1A0B08}
+  .black.alert .pulse{background:var(--warn);width:10px;height:10px;animation:none;
+    box-shadow:0 0 24px var(--warn)}
+  @media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="dot" id="dot"></span>
+  <h1>띵</h1>
+  <span class="count" id="count">데이터 없음</span>
+</header>
+
+<div class="stage" id="stage">
+  <div class="ring"></div>
+  <div class="big" id="spd">--</div>
+  <div class="unit">KM / H</div>
+  <div class="sub" id="sub"><span class="tag">대기 중</span></div>
+</div>
+
+<div class="row">
+  <button class="go" id="go">출발</button>
+  <button id="dim" style="flex:0 0 110px" disabled>화면 끄기</button>
+  <button id="cfg" style="flex:0 0 72px">설정</button>
+</div>
+
+<div class="black" id="black">
+  <div class="pulse"></div>
+  <div class="hint">탭하면 돌아옵니다</div>
+</div>
+
+<div class="sheet on" id="sheet">
+  <div class="card">
+    <h2>단속카메라 데이터 넣기</h2>
+    <p>공공데이터포털의 <b>전국무인교통단속카메라 표준데이터</b> CSV를 그대로 넣으세요. 무료이고 경찰청 공식 자료입니다.<br>
+    <a href="https://www.data.go.kr/data/15028200/standard.do" target="_blank" rel="noopener">data.go.kr에서 CSV 내려받기 →</a></p>
+
+    <label>CSV 파일</label>
+    <input type="file" id="file" accept=".csv,text/csv">
+
+    <label>띵 울릴 거리</label>
+    <select id="dist">
+      <option value="300">300 m 앞</option>
+      <option value="500" selected>500 m 앞</option>
+      <option value="800">800 m 앞</option>
+    </select>
+
+    <label>진행 방향과 어긋난 카메라 무시 (각도)</label>
+    <select id="cone">
+      <option value="360">끄기 — 반경 안이면 다 알림</option>
+      <option value="90" selected>±45° — 앞쪽만</option>
+      <option value="60">±30° — 엄격하게</option>
+    </select>
+
+    <div class="msg" id="msg"></div>
+    <div class="row"><button id="done" disabled>완료</button></div>
+    <button class="ghost" id="close" style="width:100%">닫기</button>
+  </div>
+</div>
+
+<script>
+/* ---------- 상태 ---------- */
+let CAMS = [];          // {lat,lng,limit,kind,name}
+let watchId = null, wake = null, ac = null;
+let alerted = new Map();  // key -> timestamp
+let RADIUS = 500, CONE = 90;
+
+const $ = id => document.getElementById(id);
+const stage = $('stage');
+
+/* ---------- 띵 ---------- */
+function ding(hot){
+  try{
+    if(!ac) ac = new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state === 'suspended') ac.resume();
+    const t = ac.currentTime;
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(hot ? 1320 : 1760, t);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.5, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+    o.connect(g).connect(ac.destination);
+    o.start(t); o.stop(t + 0.65);
+  }catch(e){}
+  if(navigator.vibrate) navigator.vibrate(40);
+}
+
+/* ---------- 무음 루프 ----------
+   오디오가 계속 재생 중이면 브라우저가 페이지를 덜 억제합니다.
+   안드로이드에서 효과가 있고, iOS에서는 제한적입니다. */
+let keep = null;
+function keepAlive(on){
+  if(on){
+    if(keep || !ac) return;
+    const buf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * 0.00015; // 들리지 않는 수준
+    const src = ac.createBufferSource(), g = ac.createGain();
+    src.buffer = buf; src.loop = true; g.gain.value = 1;
+    src.connect(g).connect(ac.destination); src.start();
+    keep = src;
+    if('mediaSession' in navigator){
+      navigator.mediaSession.metadata = new MediaMetadata({ title: '단속카메라 감시 중', artist: '띵' });
+      navigator.mediaSession.playbackState = 'playing';
+    }
+  }else if(keep){
+    try{ keep.stop(); }catch(e){}
+    keep = null;
+    if('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
+  }
+}
+
+/* ---------- 지오 계산 ---------- */
+const R = 6371000, rad = d => d * Math.PI / 180;
+function dist(a1,o1,a2,o2){
+  const dLa = rad(a2-a1), dLo = rad(o2-o1);
+  const h = Math.sin(dLa/2)**2 + Math.cos(rad(a1))*Math.cos(rad(a2))*Math.sin(dLo/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+function bearing(a1,o1,a2,o2){
+  const y = Math.sin(rad(o2-o1))*Math.cos(rad(a2));
+  const x = Math.cos(rad(a1))*Math.sin(rad(a2)) - Math.sin(rad(a1))*Math.cos(rad(a2))*Math.cos(rad(o2-o1));
+  return (Math.atan2(y,x)*180/Math.PI + 360) % 360;
+}
+const angDiff = (a,b) => { const d = Math.abs(a-b) % 360; return d > 180 ? 360-d : d; };
+
+/* ---------- CSV 파싱 ---------- */
+function splitLine(l){
+  const out = []; let cur = '', q = false;
+  for(let i=0;i<l.length;i++){
+    const c = l[i];
+    if(c === '"'){ if(q && l[i+1] === '"'){ cur += '"'; i++; } else q = !q; }
+    else if(c === ',' && !q){ out.push(cur); cur = ''; }
+    else cur += c;
+  }
+  out.push(cur); return out;
+}
+function findCol(hdr, keys){
+  for(let i=0;i<hdr.length;i++){
+    const h = hdr[i].replace(/[\s"']/g,'');
+    if(keys.some(k => h.includes(k))) return i;
+  }
+  return -1;
+}
+function parseCSV(text){
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if(!lines.length) throw new Error('빈 파일입니다.');
+  const hdr = splitLine(lines[0]);
+  const iLat = findCol(hdr, ['위도','latitude','lat']);
+  const iLng = findCol(hdr, ['경도','longitude','lon','lng']);
+  if(iLat < 0 || iLng < 0) throw new Error('위도·경도 열을 찾지 못했습니다. 표준데이터 CSV가 맞는지 확인하세요.');
+  const iLim  = findCol(hdr, ['제한속도','속도']);
+  const iKind = findCol(hdr, ['단속구분','단속종류','시설종류']);
+  const iName = findCol(hdr, ['지점명','설치장소','소재지도로명주소','주소']);
+
+  const rows = [];
+  for(let i=1;i<lines.length;i++){
+    const c = splitLine(lines[i]);
+    const la = parseFloat(c[iLat]), ln = parseFloat(c[iLng]);
+    if(!isFinite(la) || !isFinite(ln)) continue;
+    if(la < 32 || la > 39.8 || ln < 124 || ln > 132.2) continue; // 한반도 밖 좌표 제거
+    const kind = iKind >= 0 ? (c[iKind]||'').replace(/"/g,'') : '';
+    if(/주정차|주차/.test(kind)) continue;  // 주정차 단속은 주행 알림 대상 아님
+    rows.push({
+      lat: la, lng: ln,
+      limit: iLim >= 0 ? parseInt(c[iLim]) || 0 : 0,
+      kind,
+      name: iName >= 0 ? (c[iName]||'').replace(/"/g,'').slice(0,28) : ''
+    });
+  }
+  if(!rows.length) throw new Error('유효한 좌표가 한 건도 없습니다.');
+  return rows;
+}
+
+/* ---------- 격자 색인 (전국 3만건도 즉시 조회) ---------- */
+let GRID = null;
+const CELL = 0.01; // 약 1.1km
+const key = (la,ln) => Math.round(la/CELL) + ':' + Math.round(ln/CELL);
+function buildGrid(){
+  GRID = new Map();
+  CAMS.forEach((c, i) => {
+    const k = key(c.lat, c.lng);
+    if(!GRID.has(k)) GRID.set(k, []);
+    GRID.get(k).push(i);
+  });
+}
+function nearby(la, ln){
+  const out = [], r = Math.ceil((RADIUS/1000)/1.1) + 1;
+  const ba = Math.round(la/CELL), bo = Math.round(ln/CELL);
+  for(let x=-r;x<=r;x++) for(let y=-r;y<=r;y++){
+    const arr = GRID.get((ba+x) + ':' + (bo+y));
+    if(arr) for(const i of arr) out.push(CAMS[i]);
+  }
+  return out;
+}
+
+/* ---------- 주행 루프 ---------- */
+function onPos(p){
+  const { latitude:la, longitude:ln, speed, heading } = p.coords;
+  const kmh = speed != null && speed >= 0 ? Math.round(speed * 3.6) : null;
+  $('spd').textContent = kmh == null ? '--' : kmh;
+
+  const now = Date.now();
+  let best = null, bestD = Infinity;
+
+  for(const c of nearby(la, ln)){
+    const d = dist(la, ln, c.lat, c.lng);
+    if(d > RADIUS) continue;
+    if(CONE < 360 && heading != null && !isNaN(heading) && kmh != null && kmh > 15){
+      if(angDiff(bearing(la, ln, c.lat, c.lng), heading) > CONE/2) continue;
+    }
+    if(d < bestD){ bestD = d; best = c; }
+
+    const k = c.lat.toFixed(5) + ',' + c.lng.toFixed(5);
+    const last = alerted.get(k) || 0;
+    if(now - last > 90000){       // 같은 카메라 90초 내 재알림 금지
+      alerted.set(k, now);
+      ding(/구간/.test(c.kind));  // 구간단속은 낮은 음
+    }
+  }
+
+  // 오래된 기록 정리
+  if(alerted.size > 400) for(const [k,t] of alerted) if(now - t > 300000) alerted.delete(k);
+
+  stage.className = 'stage' + (best ? (bestD < 150 ? ' zone' : ' near') : '');
+  $('black').classList.toggle('alert', !!best);
+  if(best){
+    const cls = /구간/.test(best.kind) ? 'h' : 'w';
+    const lim = best.limit ? best.limit + 'km/h · ' : '';
+    $('sub').innerHTML = `<span class="tag ${cls}">${best.kind || '단속'}</span>
+      <div style="margin-top:8px">${lim}${Math.round(bestD)}m</div>`;
+  }else{
+    $('sub').innerHTML = '<span class="tag">주행 중</span>';
+  }
+}
+
+async function start(){
+  if(!CAMS.length){ $('sheet').classList.add('on'); return; }
+  ding(false);                              // 오디오 권한 해제 + 시작음
+  keepAlive(true);
+  try{ wake = await navigator.wakeLock.request('screen'); }catch(e){}
+  watchId = navigator.geolocation.watchPosition(onPos,
+    err => { $('sub').innerHTML = '<span class="tag h">위치 권한이 꺼져 있습니다</span>'; },
+    { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 });
+  $('dot').classList.add('live');
+  $('go').textContent = '정지'; $('go').className = 'stop';
+  $('dim').disabled = false;
+}
+function stop(){
+  if(watchId != null) navigator.geolocation.clearWatch(watchId);
+  watchId = null;
+  keepAlive(false);
+  if(wake){ wake.release(); wake = null; }
+  $('black').classList.remove('on','alert');
+  $('dim').disabled = true;
+  $('dot').classList.remove('live');
+  $('go').textContent = '출발'; $('go').className = 'go';
+  $('spd').textContent = '--';
+  stage.className = 'stage';
+  $('sub').innerHTML = '<span class="tag">대기 중</span>';
+}
+
+/* ---------- 이벤트 ---------- */
+$('go').onclick = () => watchId == null ? start() : stop();
+$('dim').onclick = () => $('black').classList.add('on');
+$('black').onclick = () => $('black').classList.remove('on');
+$('cfg').onclick = () => $('sheet').classList.add('on');
+$('close').onclick = () => $('sheet').classList.remove('on');
+$('done').onclick = () => { $('sheet').classList.remove('on'); start(); };
+
+$('file').onchange = e => {
+  const f = e.target.files[0]; if(!f) return;
+  $('msg').textContent = '읽는 중…';
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      CAMS = parseCSV(r.result);
+      buildGrid();
+      $('count').textContent = CAMS.length.toLocaleString() + '곳';
+      $('msg').style.color = 'var(--ok)';
+      $('msg').textContent = '카메라 ' + CAMS.length.toLocaleString() + '곳을 불러왔습니다.';
+      $('done').disabled = false;
+    }catch(err){
+      $('msg').style.color = 'var(--hot)';
+      $('msg').textContent = err.message;
+    }
+  };
+  r.readAsText(f, 'EUC-KR');   // 표준데이터 기본 인코딩
+  // UTF-8 파일 대비: 깨지면 재시도
+  r.onloadend = () => {
+    if(typeof r.result === 'string' && /�/.test(r.result.slice(0, 500))){
+      const r2 = new FileReader();
+      r2.onload = () => {
+        try{
+          CAMS = parseCSV(r2.result); buildGrid();
+          $('count').textContent = CAMS.length.toLocaleString() + '곳';
+          $('msg').style.color = 'var(--ok)';
+          $('msg').textContent = '카메라 ' + CAMS.length.toLocaleString() + '곳을 불러왔습니다.';
+          $('done').disabled = false;
+        }catch(err){ $('msg').style.color='var(--hot)'; $('msg').textContent = err.message; }
+      };
+      r2.readAsText(f, 'UTF-8');
+    }
+  };
+};
+$('dist').onchange = e => RADIUS = +e.target.value;
+$('cone').onchange = e => CONE = +e.target.value;
+document.addEventListener('visibilitychange', async () => {
+  if(document.visibilityState === 'visible' && watchId != null){
+    if(ac && ac.state === 'suspended') ac.resume();
+    if(!wake){ try{ wake = await navigator.wakeLock.request('screen'); }catch(e){} }
+  }
+});
+</script>
+</body>
+</html>

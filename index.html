@@ -129,7 +129,7 @@
 <div class="stage" id="stage">
   <div class="ring"></div>
   <div class="big" id="spd">--</div>
-  <div class="unit">KM / H</div>
+  <div class="unit">km/h</div>
   <div class="sub" id="sub"><span class="tag">대기 중</span></div>
 </div>
 
@@ -431,8 +431,10 @@ function nearby(la, ln){
 }
 
 /* ================= 주행 ================= */
-let lastBearing = null;   // 마지막 유효 진행 방향 (서행 중에도 사용)
-let lastDingAt = 0;       // 마지막 알림 시각 (전역 간격)
+let lastBearing = null;   // 마지막 유효 진행 방향
+let lastDingAt = 0;       // 전역 알림 간격
+let armed = false;        // 시속 15km를 한 번이라도 넘겨야 알림 시작
+let seeded = false;       // 첫 위치에서 이미 범위 안이던 카메라는 건너뜀
 
 /** 제한속도별 실효 알림 거리 — 옆길 스쿨존 오알림 방지 */
 function effRadius(limit){
@@ -449,8 +451,19 @@ function onPos(p){
   $('spd').textContent = kmh == null ? '--' : kmh;
 
   if(hd != null && !isNaN(hd) && kmh != null && kmh > 15) lastBearing = hd;
+  if(kmh != null && kmh > 15) armed = true;      // 한 번 출발하면 계속 유효
 
   const now = Date.now();
+
+  // 첫 위치 확정 시, 이미 범위 안에 있던 카메라는 울리지 않게 표시해 둔다
+  if(!seeded){
+    for(const c of nearby(la, ln)){
+      if(dist(la, ln, c.lat, c.lng) <= effRadius(c.limit))
+        alerted.set(c.lat.toFixed(5) + ',' + c.lng.toFixed(5), now);
+    }
+    seeded = true;
+  }
+
   let best = null, bestD = Infinity;
 
   for(const c of nearby(la, ln)){
@@ -464,7 +477,7 @@ function onPos(p){
     const k = c.lat.toFixed(5) + ',' + c.lng.toFixed(5);
     const last = alerted.get(k) || 0;
     const slow = kmh != null && kmh < 20;   // 정체·정지 중엔 무음
-    if(!slow && now - last > 300000 && now - lastDingAt > 8000){
+    if(armed && !slow && now - last > 300000 && now - lastDingAt > 8000){
       alerted.set(k, now);
       lastDingAt = now;
       ding();
@@ -503,6 +516,8 @@ function stop(){
   if(watchId != null) navigator.geolocation.clearWatch(watchId);
   watchId = null;
   keepAlive(false);
+  armed = false; seeded = false; lastBearing = null; lastDingAt = 0;
+  alerted.clear();
   if(wake){ wake.release(); wake = null; }
   $('black').classList.remove('on','alert');
   $('dim').disabled = true;

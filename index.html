@@ -19,7 +19,8 @@
   html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
     font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
     overscroll-behavior:none;user-select:none}
-  body{display:flex;flex-direction:column;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
+  body{display:flex;flex-direction:column;
+    padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
 
   header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
   .dot{width:8px;height:8px;border-radius:50%;background:#3A4A57;transition:background .3s}
@@ -29,42 +30,31 @@
 
   /* 신호판 */
   .stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    background:var(--panel);border:1px solid var(--line);border-radius:var(--r);position:relative;overflow:hidden}
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    position:relative;overflow:hidden}
   .ring{position:absolute;width:78vw;max-width:340px;aspect-ratio:1;border-radius:50%;
     border:1px solid #1D2A34;transition:box-shadow .4s,border-color .4s}
-  .stage.near .ring{border-color:var(--warn);box-shadow:0 0 0 1px #2A2013 inset,0 0 60px rgba(255,176,32,.18)}
+  .stage.near .ring{border-color:var(--warn);box-shadow:0 0 60px rgba(255,176,32,.18)}
   .stage.zone .ring{border-color:var(--hot);box-shadow:0 0 60px rgba(255,90,78,.2)}
-  .big{font-size:clamp(56px,22vw,110px);font-weight:700;line-height:.9;font-variant-numeric:tabular-nums;z-index:1}
+  .big{font-size:clamp(56px,22vw,110px);font-weight:700;line-height:.9;
+    font-variant-numeric:tabular-nums;z-index:1}
   .unit{font-size:14px;color:var(--mute);letter-spacing:.3em;margin-top:14px;z-index:1}
-  .sub{margin-top:18px;font-size:13px;color:var(--mute);text-align:center;padding:0 20px;z-index:1;min-height:36px}
-  .tag{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;letter-spacing:.1em;
-    border:1px solid var(--line);color:var(--mute)}
+  .sub{margin-top:18px;font-size:13px;color:var(--mute);text-align:center;
+    padding:0 20px;z-index:1;min-height:36px}
+  .tag{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;
+    letter-spacing:.1em;border:1px solid var(--line);color:var(--mute)}
   .tag.w{border-color:var(--warn);color:var(--warn)}
   .tag.h{border-color:var(--hot);color:var(--hot)}
 
-  /* 하단 */
+  /* 하단 버튼 */
   .row{display:flex;gap:8px;margin-top:10px}
-  button{flex:1;padding:15px;border-radius:var(--r);border:1px solid var(--line);
+  button{padding:15px;border-radius:var(--r);border:1px solid var(--line);
     background:var(--panel);color:var(--ink);font-size:15px;font-weight:600;font-family:inherit}
-  button.go{background:var(--ok);border-color:var(--ok);color:#062117}
-  button.stop{background:transparent;border-color:var(--hot);color:var(--hot)}
+  button.go{flex:1;background:var(--ok);border-color:var(--ok);color:#062117}
+  button.stop{flex:1;background:transparent;border-color:var(--hot);color:var(--hot)}
   button:disabled{opacity:.35}
 
-  /* 설정 시트 */
-  .sheet{position:fixed;inset:0;background:rgba(6,9,12,.92);backdrop-filter:blur(6px);
-    display:none;flex-direction:column;justify-content:center;padding:20px;z-index:9}
-  .sheet.on{display:flex}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
-  .card h2{margin:0 0 4px;font-size:16px}
-  .card p{margin:0 0 14px;font-size:13px;color:var(--mute);line-height:1.6}
-  label{display:block;font-size:12px;color:var(--mute);margin:12px 0 6px}
-  input[type=file],select,input[type=number]{width:100%;padding:12px;border-radius:10px;
-    border:1px solid var(--line);background:#0D141A;color:var(--ink);font-size:14px;font-family:inherit}
-  a{color:var(--ok)}
-  .msg{font-size:12px;margin-top:12px;color:var(--warn);min-height:16px;line-height:1.5}
-  .ghost{background:none;border:none;color:var(--mute);font-size:12px;padding:8px}
-
-  /* 블랙아웃 — 화면은 켜져 있되 꺼진 것처럼 */
+  /* 블랙아웃 */
   .black{position:fixed;inset:0;background:#000;z-index:20;display:none;
     align-items:center;justify-content:center;flex-direction:column;gap:20px}
   .black.on{display:flex}
@@ -74,7 +64,58 @@
   .black.alert{background:#1A0B08}
   .black.alert .pulse{background:var(--warn);width:10px;height:10px;animation:none;
     box-shadow:0 0 24px var(--warn)}
-  @media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+
+  /* 설정 시트 */
+  .sheet{position:fixed;inset:0;background:var(--bg);z-index:9;display:none;
+    flex-direction:column;padding:max(14px,env(safe-area-inset-top)) 0 0}
+  .sheet.on{display:flex}
+  .shead{display:flex;align-items:center;gap:12px;padding:0 16px 14px;
+    border-bottom:1px solid var(--line)}
+  .shead b{font-size:15px}
+  .shead button{margin-left:auto;padding:9px 16px;font-size:13px}
+  .sbody{flex:1;overflow-y:auto;padding:16px 16px max(24px,env(safe-area-inset-bottom));
+    -webkit-overflow-scrolling:touch}
+
+  .sec{font-size:11px;color:var(--mute);letter-spacing:.14em;margin:22px 0 9px}
+  .sec:first-child{margin-top:0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
+  .card p{margin:0 0 12px;font-size:12.5px;color:var(--mute);line-height:1.65}
+  a{color:var(--ok)}
+
+  .ctl{margin-bottom:15px}
+  .ctl:last-child{margin-bottom:0}
+  .ctl .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .ctl label{font-size:12.5px}
+  .ctl .val{font-size:12px;color:var(--warn);font-variant-numeric:tabular-nums}
+  .ctl .hint{font-size:11px;color:var(--mute);margin-top:4px;line-height:1.5}
+
+  input[type=range]{width:100%;height:26px;background:transparent;-webkit-appearance:none;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:3px;background:#1F2B34;border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;
+    border-radius:50%;background:var(--ink);margin-top:-9.5px;border:none}
+  input[type=range]::-moz-range-track{height:3px;background:#1F2B34;border-radius:2px}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;
+    background:var(--ink);border:none}
+  input[type=file]{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);
+    background:#0D141A;color:var(--ink);font-size:13px;font-family:inherit}
+
+  .seg{display:flex;gap:7px}
+  .seg button{flex:1;padding:11px 4px;border-radius:10px;border:1px solid var(--line);
+    background:transparent;color:var(--mute);font-size:12.5px;font-weight:400}
+  .seg button.on{border-color:var(--warn);color:var(--warn)}
+
+  .insts{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+  .inst{padding:12px 3px 10px;border-radius:11px;border:1px solid var(--line);
+    background:transparent;color:var(--mute);font-size:11.5px;line-height:1.35;font-weight:400}
+  .inst .g{display:block;font-size:16px;margin-bottom:4px;opacity:.7}
+  .inst.on{border-color:var(--ok);color:var(--ok)}
+  .inst.on .g{opacity:1}
+
+  .try{width:100%;margin-top:14px;border-color:var(--ok);color:var(--ok);background:transparent}
+  .try.lit{background:rgba(63,214,154,.12)}
+
+  .msg{font-size:12px;margin-top:10px;min-height:16px;line-height:1.5;color:var(--warn)}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -94,7 +135,7 @@
 
 <div class="row">
   <button class="go" id="go">출발</button>
-  <button id="dim" style="flex:0 0 110px" disabled>화면 끄기</button>
+  <button id="dim" style="flex:0 0 108px" disabled>화면 끄기</button>
   <button id="cfg" style="flex:0 0 72px">설정</button>
 </div>
 
@@ -103,79 +144,201 @@
   <div class="hint">탭하면 돌아옵니다</div>
 </div>
 
+<!-- ===== 설정 ===== -->
 <div class="sheet on" id="sheet">
-  <div class="card">
-    <h2>단속카메라 데이터 넣기</h2>
-    <p>공공데이터포털의 <b>전국무인교통단속카메라 표준데이터</b> CSV를 그대로 넣으세요. 무료이고 경찰청 공식 자료입니다.<br>
-    <a href="https://www.data.go.kr/data/15028200/standard.do" target="_blank" rel="noopener">data.go.kr에서 CSV 내려받기 →</a></p>
+  <div class="shead">
+    <b>설정</b>
+    <button id="close">닫기</button>
+  </div>
 
-    <label>CSV 파일</label>
-    <input type="file" id="file" accept=".csv,text/csv">
+  <div class="sbody">
 
-    <label>띵 울릴 거리</label>
-    <select id="dist">
-      <option value="300">300 m 앞</option>
-      <option value="500" selected>500 m 앞</option>
-      <option value="800">800 m 앞</option>
-    </select>
+    <div class="sec">단속카메라 데이터</div>
+    <div class="card">
+      <p>공공데이터포털의 <b>전국무인교통단속카메라 표준데이터</b> CSV를 넣으세요. 경찰청 공식 자료이고 무료입니다.<br>
+      <a href="https://www.data.go.kr/data/15028200/standard.do" target="_blank" rel="noopener">data.go.kr에서 받기 →</a></p>
+      <input type="file" id="file" accept=".csv,text/csv">
+      <div class="msg" id="msg"></div>
+    </div>
 
-    <label>진행 방향과 어긋난 카메라 무시 (각도)</label>
-    <select id="cone">
-      <option value="360">끄기 — 반경 안이면 다 알림</option>
-      <option value="90" selected>±45° — 앞쪽만</option>
-      <option value="60">±30° — 엄격하게</option>
-    </select>
+    <div class="sec">알림 조건</div>
+    <div class="card">
+      <div class="ctl">
+        <div class="top"><label>알림 거리</label><span class="val" id="vr">500 m</span></div>
+        <div class="seg" id="radius">
+          <button data-v="300">300 m</button>
+          <button data-v="500" class="on">500 m</button>
+          <button data-v="800">800 m</button>
+        </div>
+        <div class="hint">카메라 몇 미터 앞에서 울릴지 정합니다</div>
+      </div>
 
-    <div class="msg" id="msg"></div>
-    <div class="row"><button id="done" disabled>완료</button></div>
-    <button class="ghost" id="close" style="width:100%">닫기</button>
+      <div class="ctl">
+        <div class="top"><label>진행 방향 판정</label><span class="val" id="vc">앞쪽만</span></div>
+        <div class="seg" id="cone">
+          <button data-v="360">전부</button>
+          <button data-v="90" class="on">앞쪽만</button>
+          <button data-v="60">엄격</button>
+        </div>
+        <div class="hint">반대편 도로의 카메라를 걸러냅니다 (시속 15km 이상일 때)</div>
+      </div>
+    </div>
+
+    <div class="sec">알림음 — 악기</div>
+    <div class="insts" id="insts"></div>
+
+    <div class="sec">알림음 — 높이와 길이</div>
+    <div class="card">
+      <div class="ctl">
+        <div class="top"><label>첫 번째 음</label><span class="val" id="v1">1568 Hz</span></div>
+        <input type="range" id="f1" min="330" max="2600" step="1" value="1568">
+      </div>
+
+      <div class="ctl">
+        <div class="top"><label>두 번째 음</label><span class="val" id="v2">1376 Hz</span></div>
+        <input type="range" id="f2" min="330" max="2600" step="1" value="1376">
+        <div class="hint">첫 음보다 높으면 올라가고, 낮으면 내려갑니다</div>
+      </div>
+
+      <div class="ctl">
+        <div class="top"><label>두 음 사이 간격</label><span class="val" id="vg">135 ms</span></div>
+        <input type="range" id="gap" min="0" max="400" step="5" value="135">
+        <div class="hint">0으로 두면 두 음이 겹쳐 화음이 됩니다</div>
+      </div>
+
+      <div class="ctl">
+        <div class="top"><label>여운 길이</label><span class="val" id="vd">100 %</span></div>
+        <input type="range" id="dec" min="30" max="250" step="5" value="100">
+      </div>
+
+      <div class="ctl">
+        <div class="top"><label>음 개수</label><span class="val" id="vn">두 음</span></div>
+        <div class="seg" id="cnt">
+          <button data-v="1">한 음</button>
+          <button data-v="2" class="on">두 음</button>
+          <button data-v="3">세 음</button>
+        </div>
+      </div>
+
+      <button class="try" id="try">알림음 들어보기</button>
+    </div>
+
   </div>
 </div>
 
 <script>
-/* ---------- 상태 ---------- */
-let CAMS = [];          // {lat,lng,limit,kind,name}
-let watchId = null, wake = null, ac = null;
-let alerted = new Map();  // key -> timestamp
-let RADIUS = 500, CONE = 90;
+/* ================= 상태 ================= */
+let CAMS = [], GRID = null;
+let watchId = null, wake = null, ac = null, keep = null;
+let alerted = new Map();
+
+const S = {
+  radius: 500,
+  cone: 90,
+  inst: 'bell',
+  f1: 1568,
+  f2: 1376,
+  gap: 135,
+  decPct: 100,
+  count: 2
+};
 
 const $ = id => document.getElementById(id);
 const stage = $('stage');
 
-/* ---------- 띵 ---------- */
-function ding(hot){
-  try{
-    if(!ac) ac = new (window.AudioContext||window.webkitAudioContext)();
-    if(ac.state === 'suspended') ac.resume();
-    const t = ac.currentTime;
-    const o = ac.createOscillator(), g = ac.createGain();
+/* ================= 악기 =================
+   p: [배음배수, 세기, 감쇠배수] · atk: 어택 · dec: 기본 여운
+   inh: 비조화도 · noise: 타격/숨 · soft: 지속형 */
+const INSTRUMENTS = {
+  bell:     { name:'종',      glyph:'\u25CD', p:[[0.5,0.5,1.2],[1,1,1],[2.76,0.4,0.75],[5.4,0.2,0.5],[8.93,0.1,0.35]], atk:0.002, dec:1.6,  noise:0.03 },
+  marimba:  { name:'마림바',  glyph:'\u25AC', p:[[1,1,1],[4,0.28,0.5],[9.2,0.1,0.3]], atk:0.002, dec:0.55, noise:0.05 },
+  glocken:  { name:'글로켄',  glyph:'\u25AE', p:[[1,1,1],[3,0.5,0.7],[6.1,0.22,0.45],[10.5,0.1,0.3]], atk:0.001, dec:0.9, noise:0.04 },
+  piano:    { name:'피아노',  glyph:'\u25A4', p:[[1,1,1],[2,0.5,0.85],[3,0.28,0.7],[4,0.18,0.6],[5,0.1,0.5],[6,0.06,0.4]], atk:0.003, dec:1.0, inh:0.0004, noise:0.12 },
+  harp:     { name:'하프',    glyph:'\u2307', p:[[1,1,1],[2,0.55,0.8],[3,0.32,0.65],[4,0.2,0.55],[5,0.12,0.45],[6,0.08,0.35],[8,0.05,0.28]], atk:0.004, dec:1.15, noise:0.08 },
+  musicbox: { name:'뮤직박스',glyph:'\u273B', p:[[1,1,1],[2.05,0.42,0.7],[3.2,0.24,0.5],[4.6,0.12,0.35],[6.3,0.07,0.25]], atk:0.001, dec:0.75, noise:0.06 },
+  flute:    { name:'플루트',  glyph:'\u25E0', p:[[1,1,1],[2,0.12,0.9],[3,0.05,0.8]], atk:0.055, dec:0.5, noise:0.18, soft:true },
+  sine:     { name:'전자음',  glyph:'\u25CB', p:[[1,1,1]], atk:0.006, dec:0.6 }
+};
+
+/* ================= 소리 ================= */
+function audio(){
+  if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+  if(ac.state === 'suspended') ac.resume();
+  return ac;
+}
+
+function playNote(freq, startS, scale){
+  const a = audio(), I = INSTRUMENTS[S.inst];
+  const t0 = a.currentTime + startS;
+  const dec = I.dec * (S.decPct / 100);
+  const total = I.p.reduce((s,x) => s + x[1], 0);
+  const base = (scale * 0.5) / total;
+
+  I.p.forEach(function(pt){
+    const mult = pt[0], amp = pt[1], dscale = pt[2];
+    let f = freq * mult;
+    if(I.inh) f = freq * mult * Math.sqrt(1 + I.inh * mult * mult);
+    if(f > 15000 || f < 25) return;
+
+    const o = a.createOscillator(), g = a.createGain();
     o.type = 'sine';
-    o.frequency.setValueAtTime(hot ? 1320 : 1760, t);
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.5, t + 0.008);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
-    o.connect(g).connect(ac.destination);
-    o.start(t); o.stop(t + 0.65);
+    o.frequency.setValueAtTime(f, t0);
+    const d = Math.max(0.06, dec * dscale);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(base * amp, t0 + I.atk);
+    if(I.soft){
+      g.gain.setValueAtTime(base * amp, t0 + d * 0.55);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+    }else{
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+    }
+    o.connect(g).connect(a.destination);
+    o.start(t0); o.stop(t0 + d + 0.03);
+  });
+
+  if(I.noise){
+    const len = I.soft ? 0.25 : 0.05;
+    const buf = a.createBuffer(1, Math.ceil(a.sampleRate * len), a.sampleRate);
+    const ch = buf.getChannelData(0);
+    for(let i=0;i<ch.length;i++) ch[i] = Math.random()*2 - 1;
+    const src = a.createBufferSource(); src.buffer = buf;
+    const bp = a.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = I.soft ? freq * 1.5 : freq * 2.2;
+    bp.Q.value = I.soft ? 0.8 : 1.6;
+    const ng = a.createGain();
+    ng.gain.setValueAtTime(0, t0);
+    ng.gain.linearRampToValueAtTime(base * I.noise * 2.2, t0 + 0.004);
+    ng.gain.exponentialRampToValueAtTime(0.0001, t0 + len);
+    src.connect(bp).connect(ng).connect(a.destination);
+    src.start(t0); src.stop(t0 + len + 0.02);
+  }
+}
+
+/* 고정식과 구간단속 모두 같은 소리 */
+function ding(){
+  try{
+    const g = S.gap / 1000;
+    playNote(S.f1, 0, 1);
+    if(S.count >= 2) playNote(S.f2, g, 1);
+    if(S.count >= 3) playNote(S.f2 * 1.5, g * 2, 0.85);
   }catch(e){}
   if(navigator.vibrate) navigator.vibrate(40);
 }
 
-/* ---------- 무음 루프 ----------
-   오디오가 계속 재생 중이면 브라우저가 페이지를 덜 억제합니다.
-   안드로이드에서 효과가 있고, iOS에서는 제한적입니다. */
-let keep = null;
+/* 무음 루프 — 백그라운드 억제 완화 */
 function keepAlive(on){
   if(on){
     if(keep || !ac) return;
     const buf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
     const d = buf.getChannelData(0);
-    for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * 0.00015; // 들리지 않는 수준
+    for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * 0.00015;
     const src = ac.createBufferSource(), g = ac.createGain();
     src.buffer = buf; src.loop = true; g.gain.value = 1;
     src.connect(g).connect(ac.destination); src.start();
     keep = src;
     if('mediaSession' in navigator){
-      navigator.mediaSession.metadata = new MediaMetadata({ title: '단속카메라 감시 중', artist: '띵' });
+      navigator.mediaSession.metadata = new MediaMetadata({ title:'단속카메라 감시 중', artist:'띵' });
       navigator.mediaSession.playbackState = 'playing';
     }
   }else if(keep){
@@ -185,7 +348,7 @@ function keepAlive(on){
   }
 }
 
-/* ---------- 지오 계산 ---------- */
+/* ================= 지오 ================= */
 const R = 6371000, rad = d => d * Math.PI / 180;
 function dist(a1,o1,a2,o2){
   const dLa = rad(a2-a1), dLo = rad(o2-o1);
@@ -199,7 +362,7 @@ function bearing(a1,o1,a2,o2){
 }
 const angDiff = (a,b) => { const d = Math.abs(a-b) % 360; return d > 180 ? 360-d : d; };
 
-/* ---------- CSV 파싱 ---------- */
+/* ================= CSV ================= */
 function splitLine(l){
   const out = []; let cur = '', q = false;
   for(let i=0;i<l.length;i++){
@@ -233,13 +396,13 @@ function parseCSV(text){
     const c = splitLine(lines[i]);
     const la = parseFloat(c[iLat]), ln = parseFloat(c[iLng]);
     if(!isFinite(la) || !isFinite(ln)) continue;
-    if(la < 32 || la > 39.8 || ln < 124 || ln > 132.2) continue; // 한반도 밖 좌표 제거
+    if(la < 32 || la > 39.8 || ln < 124 || ln > 132.2) continue;
     const kind = iKind >= 0 ? (c[iKind]||'').replace(/"/g,'') : '';
-    if(/주정차|주차/.test(kind)) continue;  // 주정차 단속은 주행 알림 대상 아님
+    if(/주정차|주차/.test(kind)) continue;
     rows.push({
       lat: la, lng: ln,
       limit: iLim >= 0 ? parseInt(c[iLim]) || 0 : 0,
-      kind,
+      kind: kind,
       name: iName >= 0 ? (c[iName]||'').replace(/"/g,'').slice(0,28) : ''
     });
   }
@@ -247,20 +410,18 @@ function parseCSV(text){
   return rows;
 }
 
-/* ---------- 격자 색인 (전국 3만건도 즉시 조회) ---------- */
-let GRID = null;
-const CELL = 0.01; // 약 1.1km
-const key = (la,ln) => Math.round(la/CELL) + ':' + Math.round(ln/CELL);
+/* 격자 색인 */
+const CELL = 0.01;
 function buildGrid(){
   GRID = new Map();
-  CAMS.forEach((c, i) => {
-    const k = key(c.lat, c.lng);
+  CAMS.forEach((c,i) => {
+    const k = Math.round(c.lat/CELL) + ':' + Math.round(c.lng/CELL);
     if(!GRID.has(k)) GRID.set(k, []);
     GRID.get(k).push(i);
   });
 }
 function nearby(la, ln){
-  const out = [], r = Math.ceil((RADIUS/1000)/1.1) + 1;
+  const out = [], r = Math.ceil((S.radius/1000)/1.1) + 1;
   const ba = Math.round(la/CELL), bo = Math.round(ln/CELL);
   for(let x=-r;x<=r;x++) for(let y=-r;y<=r;y++){
     const arr = GRID.get((ba+x) + ':' + (bo+y));
@@ -269,10 +430,11 @@ function nearby(la, ln){
   return out;
 }
 
-/* ---------- 주행 루프 ---------- */
+/* ================= 주행 ================= */
 function onPos(p){
-  const { latitude:la, longitude:ln, speed, heading } = p.coords;
-  const kmh = speed != null && speed >= 0 ? Math.round(speed * 3.6) : null;
+  const la = p.coords.latitude, ln = p.coords.longitude;
+  const sp = p.coords.speed, hd = p.coords.heading;
+  const kmh = (sp != null && sp >= 0) ? Math.round(sp * 3.6) : null;
   $('spd').textContent = kmh == null ? '--' : kmh;
 
   const now = Date.now();
@@ -280,30 +442,30 @@ function onPos(p){
 
   for(const c of nearby(la, ln)){
     const d = dist(la, ln, c.lat, c.lng);
-    if(d > RADIUS) continue;
-    if(CONE < 360 && heading != null && !isNaN(heading) && kmh != null && kmh > 15){
-      if(angDiff(bearing(la, ln, c.lat, c.lng), heading) > CONE/2) continue;
+    if(d > S.radius) continue;
+    if(S.cone < 360 && hd != null && !isNaN(hd) && kmh != null && kmh > 15){
+      if(angDiff(bearing(la, ln, c.lat, c.lng), hd) > S.cone/2) continue;
     }
     if(d < bestD){ bestD = d; best = c; }
 
     const k = c.lat.toFixed(5) + ',' + c.lng.toFixed(5);
     const last = alerted.get(k) || 0;
-    if(now - last > 90000){       // 같은 카메라 90초 내 재알림 금지
+    if(now - last > 90000){
       alerted.set(k, now);
-      ding(/구간/.test(c.kind));  // 구간단속은 낮은 음
+      ding();
     }
   }
 
-  // 오래된 기록 정리
   if(alerted.size > 400) for(const [k,t] of alerted) if(now - t > 300000) alerted.delete(k);
 
   stage.className = 'stage' + (best ? (bestD < 150 ? ' zone' : ' near') : '');
   $('black').classList.toggle('alert', !!best);
+
   if(best){
     const cls = /구간/.test(best.kind) ? 'h' : 'w';
     const lim = best.limit ? best.limit + 'km/h · ' : '';
-    $('sub').innerHTML = `<span class="tag ${cls}">${best.kind || '단속'}</span>
-      <div style="margin-top:8px">${lim}${Math.round(bestD)}m</div>`;
+    $('sub').innerHTML = '<span class="tag ' + cls + '">' + (best.kind || '단속') + '</span>' +
+      '<div style="margin-top:8px">' + lim + Math.round(bestD) + 'm</div>';
   }else{
     $('sub').innerHTML = '<span class="tag">주행 중</span>';
   }
@@ -311,16 +473,17 @@ function onPos(p){
 
 async function start(){
   if(!CAMS.length){ $('sheet').classList.add('on'); return; }
-  ding(false);                              // 오디오 권한 해제 + 시작음
+  audio(); ding();
   keepAlive(true);
   try{ wake = await navigator.wakeLock.request('screen'); }catch(e){}
   watchId = navigator.geolocation.watchPosition(onPos,
-    err => { $('sub').innerHTML = '<span class="tag h">위치 권한이 꺼져 있습니다</span>'; },
-    { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 });
+    () => { $('sub').innerHTML = '<span class="tag h">위치 권한이 꺼져 있습니다</span>'; },
+    { enableHighAccuracy:true, maximumAge:1000, timeout:15000 });
   $('dot').classList.add('live');
   $('go').textContent = '정지'; $('go').className = 'stop';
   $('dim').disabled = false;
 }
+
 function stop(){
   if(watchId != null) navigator.geolocation.clearWatch(watchId);
   watchId = null;
@@ -335,52 +498,92 @@ function stop(){
   $('sub').innerHTML = '<span class="tag">대기 중</span>';
 }
 
-/* ---------- 이벤트 ---------- */
+/* ================= 설정 UI ================= */
+const grid = $('insts');
+Object.keys(INSTRUMENTS).forEach(function(key){
+  const I = INSTRUMENTS[key];
+  const b = document.createElement('button');
+  b.className = 'inst' + (key === S.inst ? ' on' : '');
+  b.innerHTML = '<span class="g">' + I.glyph + '</span>' + I.name;
+  b.onclick = function(){
+    document.querySelectorAll('.inst').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    S.inst = key; ding();
+  };
+  grid.appendChild(b);
+});
+
+function seg(id, key, fmt){
+  document.querySelectorAll('#' + id + ' button').forEach(function(b){
+    b.onclick = function(){
+      document.querySelectorAll('#' + id + ' button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      S[key] = +b.dataset.v;
+      fmt();
+    };
+  });
+}
+seg('radius', 'radius', () => { $('vr').textContent = S.radius + ' m'; });
+seg('cone', 'cone', () => {
+  $('vc').textContent = S.cone === 360 ? '전부' : (S.cone === 90 ? '앞쪽만' : '엄격');
+});
+seg('cnt', 'count', () => { $('vn').textContent = ['한 음','두 음','세 음'][S.count-1]; ding(); });
+
+function slider(id, key, label, unit){
+  const el = $(id);
+  el.oninput = function(){ S[key] = +el.value; $(label).textContent = S[key] + unit; };
+  el.onchange = ding;
+}
+slider('f1','f1','v1',' Hz');
+slider('f2','f2','v2',' Hz');
+slider('gap','gap','vg',' ms');
+slider('dec','decPct','vd',' %');
+
+$('try').onclick = function(){
+  ding();
+  this.classList.add('lit');
+  setTimeout(() => this.classList.remove('lit'), 400);
+};
+
+$('file').onchange = function(e){
+  const f = e.target.files[0]; if(!f) return;
+  $('msg').style.color = 'var(--mute)';
+  $('msg').textContent = '읽는 중…';
+
+  function apply(text){
+    CAMS = parseCSV(text);
+    buildGrid();
+    $('count').textContent = CAMS.length.toLocaleString() + '곳';
+    $('msg').style.color = 'var(--ok)';
+    $('msg').textContent = '카메라 ' + CAMS.length.toLocaleString() + '곳을 불러왔습니다.';
+  }
+
+  const r = new FileReader();
+  r.onload = function(){
+    const txt = r.result;
+    try{
+      if(typeof txt === 'string' && /\uFFFD/.test(txt.slice(0,500))) throw new Error('재시도');
+      apply(txt);
+    }catch(err){
+      const r2 = new FileReader();
+      r2.onload = function(){
+        try{ apply(r2.result); }
+        catch(e2){ $('msg').style.color = 'var(--hot)'; $('msg').textContent = e2.message; }
+      };
+      r2.readAsText(f, 'UTF-8');
+    }
+  };
+  r.readAsText(f, 'EUC-KR');
+};
+
+/* ================= 이벤트 ================= */
 $('go').onclick = () => watchId == null ? start() : stop();
 $('dim').onclick = () => $('black').classList.add('on');
 $('black').onclick = () => $('black').classList.remove('on');
 $('cfg').onclick = () => $('sheet').classList.add('on');
 $('close').onclick = () => $('sheet').classList.remove('on');
-$('done').onclick = () => { $('sheet').classList.remove('on'); start(); };
 
-$('file').onchange = e => {
-  const f = e.target.files[0]; if(!f) return;
-  $('msg').textContent = '읽는 중…';
-  const r = new FileReader();
-  r.onload = () => {
-    try{
-      CAMS = parseCSV(r.result);
-      buildGrid();
-      $('count').textContent = CAMS.length.toLocaleString() + '곳';
-      $('msg').style.color = 'var(--ok)';
-      $('msg').textContent = '카메라 ' + CAMS.length.toLocaleString() + '곳을 불러왔습니다.';
-      $('done').disabled = false;
-    }catch(err){
-      $('msg').style.color = 'var(--hot)';
-      $('msg').textContent = err.message;
-    }
-  };
-  r.readAsText(f, 'EUC-KR');   // 표준데이터 기본 인코딩
-  // UTF-8 파일 대비: 깨지면 재시도
-  r.onloadend = () => {
-    if(typeof r.result === 'string' && /�/.test(r.result.slice(0, 500))){
-      const r2 = new FileReader();
-      r2.onload = () => {
-        try{
-          CAMS = parseCSV(r2.result); buildGrid();
-          $('count').textContent = CAMS.length.toLocaleString() + '곳';
-          $('msg').style.color = 'var(--ok)';
-          $('msg').textContent = '카메라 ' + CAMS.length.toLocaleString() + '곳을 불러왔습니다.';
-          $('done').disabled = false;
-        }catch(err){ $('msg').style.color='var(--hot)'; $('msg').textContent = err.message; }
-      };
-      r2.readAsText(f, 'UTF-8');
-    }
-  };
-};
-$('dist').onchange = e => RADIUS = +e.target.value;
-$('cone').onchange = e => CONE = +e.target.value;
-document.addEventListener('visibilitychange', async () => {
+document.addEventListener('visibilitychange', async function(){
   if(document.visibilityState === 'visible' && watchId != null){
     if(ac && ac.state === 'suspended') ac.resume();
     if(!wake){ try{ wake = await navigator.wakeLock.request('screen'); }catch(e){} }

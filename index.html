@@ -431,32 +431,47 @@ function nearby(la, ln){
 }
 
 /* ================= 주행 ================= */
+let lastBearing = null;   // 마지막 유효 진행 방향 (서행 중에도 사용)
+let lastDingAt = 0;       // 마지막 알림 시각 (전역 간격)
+
+/** 제한속도별 실효 알림 거리 — 옆길 스쿨존 오알림 방지 */
+function effRadius(limit){
+  if(limit >= 80) return S.radius;
+  if(limit >= 60) return Math.min(S.radius, 400);
+  if(limit >= 50) return Math.min(S.radius, 300);
+  return Math.min(S.radius, 180);   // 스쿨존 등 저속 도로
+}
+
 function onPos(p){
   const la = p.coords.latitude, ln = p.coords.longitude;
   const sp = p.coords.speed, hd = p.coords.heading;
   const kmh = (sp != null && sp >= 0) ? Math.round(sp * 3.6) : null;
   $('spd').textContent = kmh == null ? '--' : kmh;
 
+  if(hd != null && !isNaN(hd) && kmh != null && kmh > 15) lastBearing = hd;
+
   const now = Date.now();
   let best = null, bestD = Infinity;
 
   for(const c of nearby(la, ln)){
     const d = dist(la, ln, c.lat, c.lng);
-    if(d > S.radius) continue;
-    if(S.cone < 360 && hd != null && !isNaN(hd) && kmh != null && kmh > 15){
-      if(angDiff(bearing(la, ln, c.lat, c.lng), hd) > S.cone/2) continue;
+    if(d > effRadius(c.limit)) continue;
+    if(S.cone < 360 && lastBearing != null){
+      if(angDiff(bearing(la, ln, c.lat, c.lng), lastBearing) > S.cone/2) continue;
     }
     if(d < bestD){ bestD = d; best = c; }
 
     const k = c.lat.toFixed(5) + ',' + c.lng.toFixed(5);
     const last = alerted.get(k) || 0;
-    if(now - last > 90000){
+    const slow = kmh != null && kmh < 20;   // 정체·정지 중엔 무음
+    if(!slow && now - last > 300000 && now - lastDingAt > 8000){
       alerted.set(k, now);
+      lastDingAt = now;
       ding();
     }
   }
 
-  if(alerted.size > 400) for(const [k,t] of alerted) if(now - t > 300000) alerted.delete(k);
+  if(alerted.size > 600) for(const [k,t] of alerted) if(now - t > 600000) alerted.delete(k);
 
   stage.className = 'stage' + (best ? (bestD < 150 ? ' zone' : ' near') : '');
   $('black').classList.toggle('alert', !!best);
